@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   experimental: {
     agentFeedback: true,
   },
@@ -14,6 +13,23 @@ const nextConfig: NextConfig = {
         as: "*.css",
       },
     },
+  },
+  // Native / WebAssembly packages used by the local TTS engine are loaded with Node's require.
+  serverExternalPackages: ["onnxruntime-node", "@diffusionstudio/piper-wasm"],
+  // This is a local tool: never show a "powered by" header, never allow framing by other sites.
+  poweredByHeader: false,
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+        ],
+      },
+    ];
   },
 };
 
